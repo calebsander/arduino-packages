@@ -31,8 +31,9 @@ fs.readFile('data.json', function (err, data) {
 				console.log('\tset-dir /home/user/Arduino');
 				break;
 			}
+			process.argv[3] = path.resolve(process.argv[3]);
 			libraryData = {
-				dir: process.argv[3] + '/libraries',
+				dir: process.argv[3] + path.sep + 'libraries',
 				git: [],
 				links: []
 			};
@@ -61,7 +62,7 @@ fs.readFile('data.json', function (err, data) {
 						for (var i = 0; i < data.length; i++) {
 							(function () {
 								return function (i, length) {
-									fs.stat(libraryData.dir + '/' + data[i], function (err, stats) {
+									fs.stat(libraryData.dir + path.sep + data[i], function (err, stats) {
 										if (err) throw err;
 										if (stats.isDirectory() && stats.ctime && stats.ctime.getTime() > lastTime) {
 											lastTime = stats.ctime;
@@ -93,7 +94,7 @@ fs.readFile('data.json', function (err, data) {
 			process.chdir(origDir);
 			var splitdir = process.argv[3].split(path.sep);
 			var folderName = splitdir[splitdir.length - 1];
-			fs.symlink(path.resolve(process.argv[3]), libraryData.dir + '/' + folderName, 'junction', function (err) {
+			fs.symlink(path.resolve(process.argv[3]), libraryData.dir + path.sep + folderName, 'junction', function (err) {
 				if (err) throw err;
 				else {
 					libraryData.links.push(folderName);
@@ -116,7 +117,7 @@ fs.readFile('data.json', function (err, data) {
 				console.log('Must run set-dir first.');
 				break;
 			}
-			process.chdir(libraryData.dir + '/' + process.argv[3]);
+			process.chdir(libraryData.dir + path.sep + process.argv[3]);
 			var gitProcess = child_process('git pull', function (err, stdout, stderr) {
 				console.log(stdout);
 				console.log(stderr);
